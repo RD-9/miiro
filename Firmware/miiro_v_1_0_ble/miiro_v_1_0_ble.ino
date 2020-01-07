@@ -1,6 +1,6 @@
 /* MiiCode Firmware for MiiRo Robot
- *  Version 0.6
- *  Date: December 2019
+ *  Version 1.0
+ *  Date: January 2020
  *  Author: Tyrone van Balla
  *  Company: RD9 Solutions
  */
@@ -20,9 +20,9 @@
 #define servo_left_pin 6
 
 // RBG LED
-#define led_r_pin 17 // needs new board pin
-#define led_g_pin 18 // needs new board pin
-#define led_b_pin 19 // needs new board pin
+#define led_r_pin 19 
+#define led_g_pin 18 
+#define led_b_pin 17 
 
 // buzzer
 #define buzzer_pin A0
@@ -36,7 +36,7 @@
 
 // constants
 
-#define baud_rate 9600
+#define baud_rate 57600
 
 int current_byte = 0;
 int prev_byte = 0;
@@ -229,11 +229,11 @@ void outputs_set()
       if (motor_direction == 0)
       {
         // reverse direction
-        motor_b_speed = (90 + int(current_byte*0.9));
+        motor_b_speed = (90 - int(current_byte*0.9));
       }
       else
       {
-        motor_b_speed = (90 - int(current_byte*0.9));
+        motor_b_speed = (90 + int(current_byte*0.9));
       }
     }
     left_servo.attach(servo_left_pin);
