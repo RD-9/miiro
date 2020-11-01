@@ -1,6 +1,6 @@
 /* MiiCode Firmware for MiiRo Robot
- *  Version 1.0
- *  Date: January 2020
+ *  Version 1.1
+ *  Date: November 2020
  *  Author: Tyrone van Balla
  *  Company: RD9 Solutions
  */
@@ -49,7 +49,7 @@ int motor_b_speed = 0;
 // variables for creating delay in sending data
 unsigned long previous_timestamp = 0;
 unsigned long current_timestamp;
-const long time_delay = 2000;
+const long time_delay = 1250; // milliseconds
 
 // for ultrasonic sensor
 int dist;
@@ -92,7 +92,6 @@ void setup()
 
   // initialize serial communications at specified baud rate
   mySerial.begin(baud_rate);
-  Serial.begin(baud_rate);
 
   // setup complete
 }
@@ -114,13 +113,13 @@ void loop()
     }
 }
 
-// board initialization - ok!: led blue flash twice, then green, then off
+// board initialization - ok!: led red flash, then blue, then blue, then off
 void initialization_ok()
 {
-  analogWrite(led_r_pin, 255);
+  analogWrite(led_r_pin, 0);
   analogWrite(led_g_pin, 255);
-  analogWrite(led_b_pin, 0);
-  delay(1000);
+  analogWrite(led_b_pin, 255);
+  delay(500);
   analogWrite(led_r_pin, 255);
   analogWrite(led_g_pin, 255);
   analogWrite(led_b_pin, 255);
@@ -128,11 +127,15 @@ void initialization_ok()
   analogWrite(led_r_pin, 255);
   analogWrite(led_g_pin, 255);
   analogWrite(led_b_pin, 0);
-  delay(1000);
+  delay(500);
   analogWrite(led_r_pin, 255);
-  analogWrite(led_g_pin, 0);
+  analogWrite(led_g_pin, 255);
   analogWrite(led_b_pin, 255);
-  delay(2000);
+  delay(500);
+  analogWrite(led_r_pin, 255);
+  analogWrite(led_g_pin, 255);
+  analogWrite(led_b_pin, 0);
+  delay(500);
   analogWrite(led_r_pin, 255);
   analogWrite(led_g_pin, 255);
   analogWrite(led_b_pin, 255);
@@ -143,7 +146,8 @@ void receive_data_from_miicode()
 {
   if (mySerial.available() > 0)
   {
-    if ((prev_byte == 202 or prev_byte == 203) and cntr == 0)
+    // catch any motor related commands as these commands consist of three parts
+    if ((prev_byte == 202 or prev_byte == 203 or prev_byte == 235) and cntr == 0)
     {      
       // current byte will be the direction
       motor_direction = mySerial.read();
@@ -179,7 +183,9 @@ void outputs_set()
     }
   }
 
-  // Motor A
+  // The two motors have to be driven in opposite directions to account for their
+  // orientation on the robot.
+  // Motor A - right motor when viewing from behind, left motor when viewing from the front
   if (prev_byte == 202)  
   {
     // determine what value to write for the motors
@@ -213,7 +219,7 @@ void outputs_set()
     
   }
 
-  // Motor B
+  // Motor B - left motor when viewing from behind, right motor when viewing from the front
   if (prev_byte == 203)  
   {
     // determine what value to write for the motors
@@ -242,6 +248,47 @@ void outputs_set()
 
     if (motor_b_speed == 90){
       left_servo.detach();
+    }
+    
+  }
+
+  // motor A & B
+  if (prev_byte == 235)
+  {
+    if (current_byte == 0)
+    {
+      // stop
+      motor_a_speed = 90;
+      motor_b_speed = 90;
+    }
+    else
+    {
+      
+   
+      if (motor_direction == 0)
+      {
+        // reverse direction
+        motor_b_speed = (90 - int(current_byte*0.9));
+        motor_a_speed = (90 + int(current_byte*0.9));
+      }
+      else
+      {
+        motor_b_speed = (90 + int(current_byte*0.9));
+        motor_a_speed = (90 - int(current_byte*0.9));
+      }
+
+
+    }
+    left_servo.attach(servo_left_pin);
+    left_servo.write(motor_b_speed);
+    right_servo.attach(servo_right_pin);
+    right_servo.write(motor_a_speed);
+    cntr = 0;
+    
+    if (motor_a_speed == 90 and motor_b_speed == 90)
+    {
+      left_servo.detach();
+      right_servo.detach();
     }
     
   }
