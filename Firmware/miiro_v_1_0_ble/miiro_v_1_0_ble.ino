@@ -131,9 +131,17 @@ void loop()
     }
 }
 
-// board initialization - ok!: led red flash, then green, then green, then off
+// board initialization - ok!: led blue flash, then red, then red, then off
 void initialization_ok()
 {
+  analogWrite(led_r_pin, 255);
+  analogWrite(led_g_pin, 255);
+  analogWrite(led_b_pin, 0);
+  delay(500);
+  analogWrite(led_r_pin, 255);
+  analogWrite(led_g_pin, 255);
+  analogWrite(led_b_pin, 255);
+  delay(500);
   analogWrite(led_r_pin, 0);
   analogWrite(led_g_pin, 255);
   analogWrite(led_b_pin, 255);
@@ -142,16 +150,8 @@ void initialization_ok()
   analogWrite(led_g_pin, 255);
   analogWrite(led_b_pin, 255);
   delay(500);
-  analogWrite(led_r_pin, 255);
-  analogWrite(led_g_pin, 0);
-  analogWrite(led_b_pin, 255);
-  delay(500);
-  analogWrite(led_r_pin, 255);
+  analogWrite(led_r_pin, 0);
   analogWrite(led_g_pin, 255);
-  analogWrite(led_b_pin, 255);
-  delay(500);
-  analogWrite(led_r_pin, 255);
-  analogWrite(led_g_pin, 0);
   analogWrite(led_b_pin, 255);
   delay(500);
   analogWrite(led_r_pin, 255);
